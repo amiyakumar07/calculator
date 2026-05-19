@@ -38,6 +38,33 @@ export default function App() {
     displayEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [input]);
 
+  // Real-time automatic calculation
+  useEffect(() => {
+    if (input && mode !== 'ai') {
+      try {
+        // Basic sanitization: only try to evaluate if ends with a number or closing paren
+        if (/[\d\).pi]$/.test(input.trim())) {
+          const res = math.evaluate(input);
+          const formatted = typeof res === 'number' 
+            ? (Number.isInteger(res) ? res.toString() : parseFloat(res.toFixed(8)).toString())
+            : res.toString();
+          
+          if (formatted !== input) {
+            setResult(formatted);
+          } else {
+            setResult('');
+          }
+        } else {
+          setResult('');
+        }
+      } catch (e) {
+        setResult('');
+      }
+    } else {
+      setResult('');
+    }
+  }, [input, mode]);
+
   const handleAction = (val: string) => {
     if (val === 'AC') {
       setInput('');
@@ -152,18 +179,18 @@ export default function App() {
 
         {/* Display Section */}
         <div className="px-8 py-6 text-right relative">
-          <div className="h-8 overflow-x-auto whitespace-nowrap text-gray-400 text-lg font-medium custom-scrollbar mb-2">
+          <div className="h-16 overflow-x-auto whitespace-nowrap text-[#1D1D1F] text-5xl font-semibold tracking-tight custom-scrollbar mb-2">
             {input || '0'}
             <div ref={displayEndRef} />
           </div>
-          <div className="h-16 flex items-end justify-end overflow-hidden text-right">
+          <div className="h-10 flex items-end justify-end overflow-hidden text-right">
             <motion.span 
               key={result}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className={cn(
-                "text-5xl font-semibold tracking-tight break-all",
-                result === 'Error' ? 'text-red-500 text-3xl' : 'text-[#1D1D1F]'
+                "text-lg font-medium break-all",
+                result === 'Error' ? 'text-red-500' : 'text-gray-400'
               )}
             >
               {result || '0'}
