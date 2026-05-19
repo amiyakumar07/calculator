@@ -1,0 +1,6 @@
+{
+  "name": "OmniCalc",
+  "description": "A powerful full-stack calculator with standard, scientific, and AI-powered natural language modes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

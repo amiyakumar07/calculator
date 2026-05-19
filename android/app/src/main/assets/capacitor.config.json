@@ -1,0 +1,5 @@
+{
+	"appId": "com.omnicalc.app",
+	"appName": "OmniCalc",
+	"webDir": "dist"
+}
