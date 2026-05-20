@@ -6,8 +6,12 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+if (!process.env.GEMINI_API_KEY) {
+  console.error("CRITICAL: GEMINI_API_KEY is not set in .env file!");
+}
+
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || "",
+  apiKey: process.env.GEMINI_API_KEY || "missing_key",
   httpOptions: {
     headers: {
       'User-Agent': 'aistudio-build',
@@ -29,15 +33,17 @@ async function startServer() {
         return res.status(400).json({ error: "Prompt is required" });
       }
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `You are a mathematical assistant. The user wants to solve: "${prompt}". 
-        Provide the numerical result and a very brief explanation if necessary. 
-        Format your response as a simple string, e.g., "Result: 42. Explanation: ...".
-        If it's just a simple calculation, just return the number.`,
-      });
+      const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-      res.json({ result: response.text });
+      const promptTemplate = `You are a mathematical assistant. The user wants to solve: "${prompt}". 
+      Provide the numerical result and a very brief explanation if necessary. 
+      Format your response as a simple string, e.g., "Result: 42. Explanation: ...".
+      If it's just a simple calculation, just return the number.`;
+
+      const result = await model.generateContent(promptTemplate);
+      const aiText = result.response.text();
+
+      res.json({ result: aiText });
     } catch (error: any) {
       console.error("Gemini API error:", error);
       res.status(500).json({ error: error.message || "Failed to process AI calculation" });
@@ -60,7 +66,10 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`\n🚀 Server ready!`);
+    console.log(`🏠 Local:   http://localhost:${PORT}`);
+    console.log(`📱 Mobile:  Connect to your computer's IP address at port ${PORT}`);
+    console.log(`   (Run 'ipconfig' in your terminal to find your IP)\n`);
   });
 }
 
